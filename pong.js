@@ -69,8 +69,8 @@ const BALL_MAX_SPD_2P  = 18;
 const LEFT_X  = 20;                       // left paddle x position
 const RIGHT_X = CANVAS_W - PADDLE_W - 20; // right paddle x position
 
-// C minor pentatonic: C4 Eb4 F4 G4 Bb4 C5
-const MUSIC_NOTES   = [261.63, 311.13, 349.23, 392.00, 466.16, 523.25];
+// C major pentatonic: C4 D4 E4 G4 A4 C5
+const MUSIC_NOTES   = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
 const MUSIC_PATTERN = [0, 2, 4, 2, 5, 3, 1, 4, 0, 3, 2, 5, 1, 4, 3, 0];
 
 // ── State ─────────────────────────────────────────────────────────────────────
