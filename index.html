@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PONG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <button id="muteBtn" title="Toggle sound (M)">🔊</button>
+
+  <!-- ── Main Menu ─────────────────────────────────────────────────────── -->
+  <div id="menu">
+    <h1>PONG</h1>
+    <div class="buttons">
+      <button id="btn1p">1 Player</button>
+      <button id="btn2p">2 Players</button>
+    </div>
+    <button id="btnHelp" class="btn-help">? Help</button>
+    <div class="theme-picker">
+      <span>Theme</span>
+      <div class="swatches" id="swatches"></div>
+    </div>
+    <div class="controls">
+      <div class="ctrl-col">
+        <span class="ctrl-label">Player 1</span>
+        <span class="ctrl-key">W / S</span>
+      </div>
+      <div class="ctrl-divider"></div>
+      <div class="ctrl-col">
+        <span class="ctrl-label">Player 2</span>
+        <span class="ctrl-key">↑ / ↓</span>
+      </div>
+      <div class="ctrl-divider"></div>
+      <div class="ctrl-col">
+        <span class="ctrl-label">Pause</span>
+        <span class="ctrl-key">P</span>
+      </div>
+      <div class="ctrl-divider"></div>
+      <div class="ctrl-col">
+        <span class="ctrl-label">Mute</span>
+        <span class="ctrl-key">M</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Difficulty Picker (shown after clicking 1 Player) ─────────────── -->
+  <div id="difficulty">
+    <h2 class="overlay-heading">SELECT DIFFICULTY</h2>
+    <div class="diff-options">
+
+      <div class="diff-option">
+        <button id="btnBeginner" class="btn-diff btn-beginner">Beginner</button>
+        <p class="diff-subdesc">Slow ball &middot; Easy AI</p>
+        <ul class="diff-stats">
+          <li>Ball speed: slow</li>
+          <li>AI speed: slow</li>
+          <li>AI style: reactive</li>
+        </ul>
+      </div>
+
+      <div class="diff-option">
+        <button id="btnMedium" class="btn-diff btn-medium">Medium</button>
+        <p class="diff-subdesc">Normal speed &middot; Reactive AI</p>
+        <ul class="diff-stats">
+          <li>Ball speed: normal</li>
+          <li>AI speed: moderate</li>
+          <li>AI style: reactive</li>
+        </ul>
+      </div>
+
+      <div class="diff-option">
+        <button id="btnExpert" class="btn-diff btn-expert">Expert</button>
+        <p class="diff-subdesc">Fast ball &middot; Predictive AI</p>
+        <ul class="diff-stats">
+          <li>Ball speed: fast</li>
+          <li>AI speed: high</li>
+          <li>AI style: aims corners</li>
+        </ul>
+      </div>
+
+    </div>
+    <button id="btnDiffBack" class="btn-back">&#8592; Back</button>
+  </div>
+
+  <!-- ── Help Screen ───────────────────────────────────────────────────── -->
+  <div id="help">
+    <h2 class="overlay-heading">HOW TO PLAY</h2>
+    <div class="help-content">
+
+      <div class="help-section">
+        <h3 class="help-heading">Goal</h3>
+        <p class="help-text">First to <span class="hl">7 points</span> wins the match.</p>
+      </div>
+
+      <div class="help-section">
+        <h3 class="help-heading">Controls</h3>
+        <table class="help-table">
+          <tr><td>Player 1 (left paddle)</td><td class="key">W &nbsp;/&nbsp; S</td></tr>
+          <tr><td>Player 2 (right paddle)</td><td class="key">&#8593; &nbsp;/&nbsp; &#8595;</td></tr>
+          <tr><td>Pause / Resume</td><td class="key">P</td></tr>
+          <tr><td>Mute / Unmute</td><td class="key">M</td></tr>
+          <tr><td>Help screen</td><td class="key">H</td></tr>
+        </table>
+      </div>
+
+      <div class="help-section">
+        <h3 class="help-heading">Difficulty (1 Player)</h3>
+        <div class="diff-row">
+          <span class="diff-tag beginner-tag">Beginner</span>
+          <p>Slow ball. AI reacts only when the ball moves toward it and tracks
+             the center of the ball — easy to beat with angled shots.</p>
+        </div>
+        <div class="diff-row">
+          <span class="diff-tag medium-tag">Medium</span>
+          <p>Normal speed. AI is quicker and has a smaller dead-zone.
+             Decent rallies, fair challenge.</p>
+        </div>
+        <div class="diff-row">
+          <span class="diff-tag expert-tag">Expert</span>
+          <p>Fast ball. AI predicts where the ball will land using wall-bounce
+             physics and deliberately aims for the edges of its paddle to send
+             hard-angle shots at your corners. Always repositions, even when
+             the ball is moving away.</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <h3 class="help-heading">Tips</h3>
+        <p class="help-text">Hit the ball with the edge of your paddle to change
+          its angle. The further from center, the steeper the shot.</p>
+      </div>
+
+    </div>
+    <button id="btnHelpBack" class="btn-back">&#8592; Back</button>
+  </div>
+
+  <!-- ── Pause ─────────────────────────────────────────────────────────── -->
+  <div id="pause">
+    <p class="overlay-title">PAUSED</p>
+    <p class="overlay-sub">Press P to resume</p>
+  </div>
+
+  <!-- ── Game Over ──────────────────────────────────────────────────────── -->
+  <div id="gameover">
+    <p id="winner"></p>
+    <div class="score-summary" id="scoreSummary"></div>
+    <div class="buttons">
+      <button id="btnReplay">Play Again</button>
+      <button id="btnMenu">Main Menu</button>
+    </div>
+  </div>
+
+  <canvas id="game" width="900" height="600"></canvas>
+
+  <script src="pong.js"></script>
+</body>
+</html>
