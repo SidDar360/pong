@@ -215,6 +215,12 @@ document.getElementById('btnMenu').addEventListener('click', () => {
   showOnly(menuEl);
 });
 
+document.getElementById('btnPauseMenu').addEventListener('click', () => {
+  stopMusic();
+  state.phase = 'menu';
+  showOnly(menuEl);
+});
+
 muteBtn.addEventListener('click', toggleMute);
 
 // ── Help screen ───────────────────────────────────────────────────────────────
