@@ -13,7 +13,7 @@ const DIFFICULTIES = {
     alwaysReact: false,// if false, AI only moves when ball travels toward it
     predict:     false,// if true, AI calculates bounce-adjusted landing y
     aimEdge:     false,// if true, AI deliberately hits with paddle edge
-    musicTempo:  210,  // ms per chiptune note (slower = mellower)
+    musicRate:   1.0,  // audio playback rate (higher = faster)
   },
   medium: {
     label:       'MEDIUM',
@@ -25,7 +25,7 @@ const DIFFICULTIES = {
     alwaysReact: false,
     predict:     false,
     aimEdge:     false,
-    musicTempo:  175,
+    musicRate:   1.2,
   },
   expert: {
     label:       'EXPERT',
@@ -37,7 +37,7 @@ const DIFFICULTIES = {
     alwaysReact: true, // repositions even when ball is moving away
     predict:     true, // simulates wall bounces to find landing y
     aimEdge:     true, // shifts paddle to hit with edge → steeper angle
-    musicTempo:  135,
+    musicRate:   1.55,
   },
 };
 
@@ -69,9 +69,8 @@ const BALL_MAX_SPD_2P  = 18;
 const LEFT_X  = 20;                       // left paddle x position
 const RIGHT_X = CANVAS_W - PADDLE_W - 20; // right paddle x position
 
-// C major pentatonic: C4 D4 E4 G4 A4 C5
-const MUSIC_NOTES   = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
-const MUSIC_PATTERN = [0, 2, 4, 2, 5, 3, 1, 4, 0, 3, 2, 5, 1, 4, 3, 0];
+const music    = new Audio('pong-theme.wav');
+music.loop     = true;
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const state = {
@@ -86,8 +85,6 @@ const state = {
   keys:        {},
   muted:       false,
   audioCtx:    null,
-  musicTimerId: null,
-  musicNoteIdx: 0,
   lastScorer:  null,     // 'left' | 'right' — determines next serve direction
   rafId:       null,
 };
@@ -266,47 +263,24 @@ const beepWall   = () => beep(330, 0.07);
 const beepScore  = () => beep(160, 0.40, 'sine', 0.25);
 
 // ── Background music ──────────────────────────────────────────────────────────
-function playMusicNote() {
-  if (state.muted || state.phase === 'menu' || state.phase === 'gameover') return;
-
-  const ac     = getAudioCtx();
-  const freq   = MUSIC_NOTES[MUSIC_PATTERN[state.musicNoteIdx % MUSIC_PATTERN.length]];
-  const cfg    = state.difficulty ? DIFFICULTIES[state.difficulty] : null;
-  const tempo  = cfg ? cfg.musicTempo : 175;
-  state.musicNoteIdx++;
-
-  const osc  = ac.createOscillator();
-  const gain = ac.createGain();
-  osc.connect(gain);
-  gain.connect(ac.destination);
-  osc.type = 'square';
-  osc.frequency.value = freq;
-  gain.gain.setValueAtTime(0.035, ac.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + (tempo * 0.75) / 1000);
-  osc.start(ac.currentTime);
-  osc.stop(ac.currentTime + (tempo * 0.75) / 1000);
-
-  state.musicTimerId = setTimeout(playMusicNote, tempo);
-}
-
 function startMusic() {
-  stopMusic();
-  state.musicNoteIdx = 0;
-  playMusicNote();
+  if (state.muted) return;
+  const cfg = state.difficulty ? DIFFICULTIES[state.difficulty] : null;
+  music.playbackRate = cfg ? cfg.musicRate : 1.0;
+  music.play().catch(() => {});
 }
 
 function stopMusic() {
-  if (state.musicTimerId !== null) {
-    clearTimeout(state.musicTimerId);
-    state.musicTimerId = null;
-  }
+  music.pause();
+  music.currentTime = 0;
 }
 
 function toggleMute() {
   state.muted = !state.muted;
   muteBtn.textContent = state.muted ? '🔇' : '🔊';
+  music.muted = state.muted;
   if (!state.muted && state.phase === 'playing') startMusic();
-  else stopMusic();
+  else if (state.muted) stopMusic();
 }
 
 // ── Game flow ─────────────────────────────────────────────────────────────────
