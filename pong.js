@@ -71,7 +71,14 @@ const RIGHT_X = CANVAS_W - PADDLE_W - 20; // right paddle x position
 
 // Pre-fetch music; decode + play via Web Audio API so it shares the same
 // AudioContext as SFX (avoids HTMLAudioElement autoplay blocks on HTTPS).
-const _musicFetch = fetch('pong-theme.wav').then(r => r.arrayBuffer());
+const _musicFetch = new Promise((resolve, reject) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', 'pong-theme.wav', true);
+  xhr.responseType = 'arraybuffer';
+  xhr.onload = () => resolve(xhr.response);
+  xhr.onerror = reject;
+  xhr.send();
+});
 let _musicBuffer = null;   // decoded AudioBuffer (cached after first decode)
 let _musicSource = null;   // currently playing AudioBufferSourceNode
 
