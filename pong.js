@@ -69,8 +69,11 @@ const BALL_MAX_SPD_2P  = 18;
 const LEFT_X  = 20;                       // left paddle x position
 const RIGHT_X = CANVAS_W - PADDLE_W - 20; // right paddle x position
 
-const music    = new Audio('pong-theme.wav');
-music.loop     = true;
+// Pre-fetch music; decode + play via Web Audio API so it shares the same
+// AudioContext as SFX (avoids HTMLAudioElement autoplay blocks on HTTPS).
+const _musicFetch = fetch('pong-theme.wav').then(r => r.arrayBuffer());
+let _musicBuffer = null;   // decoded AudioBuffer (cached after first decode)
+let _musicSource = null;   // currently playing AudioBufferSourceNode
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const state = {
@@ -263,22 +266,38 @@ const beepWall   = () => beep(330, 0.07);
 const beepScore  = () => beep(160, 0.40, 'sine', 0.25);
 
 // ── Background music ──────────────────────────────────────────────────────────
-function startMusic() {
+async function startMusic() {
   if (state.muted) return;
+  const ac = getAudioCtx();
+  if (ac.state === 'suspended') ac.resume();
+
+  if (!_musicBuffer) {
+    try {
+      _musicBuffer = await ac.decodeAudioData(await _musicFetch);
+    } catch (_) { return; }
+  }
+
+  if (_musicSource) { try { _musicSource.stop(); } catch (_) {} _musicSource = null; }
+
   const cfg = state.difficulty ? DIFFICULTIES[state.difficulty] : null;
-  music.playbackRate = cfg ? cfg.musicRate : 1.0;
-  music.play().catch(() => {});
+  _musicSource = ac.createBufferSource();
+  _musicSource.buffer = _musicBuffer;
+  _musicSource.loop = true;
+  _musicSource.playbackRate.value = cfg ? cfg.musicRate : 1.0;
+  _musicSource.connect(ac.destination);
+  _musicSource.start(0);
 }
 
 function stopMusic() {
-  music.pause();
-  music.currentTime = 0;
+  if (_musicSource) {
+    try { _musicSource.stop(); } catch (_) {}
+    _musicSource = null;
+  }
 }
 
 function toggleMute() {
   state.muted = !state.muted;
   muteBtn.textContent = state.muted ? '🔇' : '🔊';
-  music.muted = state.muted;
   if (!state.muted && state.phase === 'playing') startMusic();
   else if (state.muted) stopMusic();
 }
